@@ -33,7 +33,8 @@ public class PlayerMove : MonoBehaviour
 
 
 
-
+    public int JumpCount;
+    public int JumpCountMax = 2;
 
 
     // 목표: 캐릭터에게 중력을 적용하고 싶다.
@@ -45,8 +46,8 @@ public class PlayerMove : MonoBehaviour
     // 구현 순서:
     // 1. 중력 가속도가 누적된다.
     // 2. 플레이어에게 y축에 있어 중력을 적용한다.
-    
 
+    private bool _isJumping = false;
 
     private void Awake()
     {
@@ -70,14 +71,7 @@ public class PlayerMove : MonoBehaviour
         // Transforms direction from local space to world space.(대충 글로벌좌표를 로컬로 바꿔줌)
         dir = Camera.main.transform.TransformDirection(dir);  // 글로벌 좌표계 (세상의 동서남북)
 
-        // 3-1. 중력 가속도 계산
-         _yVelocity = _yVelocity + _gravity *Time.deltaTime;
-        // 2. 플레이어에게 y축에 있어 중력을 적용한다.
-        dir.y = _yVelocity;
-
-        // 3-2. 이동하기
-        //transform.position += Speed * dir * Time.deltaTime;
-        _characterController.Move(dir*Speed*Time.deltaTime);
+   
 
         
 
@@ -110,12 +104,38 @@ public class PlayerMove : MonoBehaviour
 
 
         // 1. 만약에 [Spacebar] 버튼을 누르는 순간 && 땅이면...
-        if (Input.GetKeyDown(KeyCode.Space)&&_characterController.isGrounded)
+        /*if (Input.GetKeyDown(KeyCode.Space)&&_characterController.isGrounded)
         {
             // 2. 플레이어에게 y축에 있어 점프 파워를 적용한다
             _yVelocity = JumpPower;
+        }*/
+        if (_characterController.isGrounded)
+        {
+            _isJumping = false;
+            JumpCount = JumpCountMax;
+            _yVelocity = 0;
         }
 
+        if (Input.GetKeyDown(KeyCode.Space) && (_characterController.isGrounded || (_isJumping && JumpCount > 0)))
+        {
+            _isJumping = true;
+            JumpCount--;
+            _yVelocity = JumpPower;
+        }
+
+
+        // 3-1. 중력 가속도 계산
+        _yVelocity += _gravity * Time.deltaTime;
+
+
+
+        // 2. 플레이어에게 y축에 있어 중력을 적용한다.
+        dir.y = _yVelocity;
+
+        // 3-2. 이동하기
+        //transform.position += Speed * dir * Time.deltaTime;
+        _characterController.Move(dir * Speed * Time.deltaTime);
     }
 
+   
 }
