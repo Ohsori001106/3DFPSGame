@@ -49,4 +49,45 @@ public class CameraManager : MonoBehaviour
         fpsCameraScript.enabled = false;
         tpsCameraScript.enabled = true;
     }
+    public static bool Focus
+    {
+        get
+        {
+            if (Cursor.lockState != CursorLockMode.Locked)
+            {
+                return false;
+            }
+
+            Vector3 mousePosition = Input.mousePosition;
+            bool isScreen = mousePosition.x < 0 ||
+                            mousePosition.x > Screen.width ||
+                            mousePosition.y < 0 ||
+                            mousePosition.y > Screen.height;
+            return !isScreen;
+        }
+    }
+    private void Update()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (Cursor.lockState == CursorLockMode.None)
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (Cursor.lockState == CursorLockMode.Locked)
+            {
+                Cursor.lockState = CursorLockMode.None;
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+            }
+        }
+
+        
+    }
 }

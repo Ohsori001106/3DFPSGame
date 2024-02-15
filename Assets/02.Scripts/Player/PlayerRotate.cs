@@ -18,5 +18,14 @@ public class PlayerRotate : MonoBehaviour
         //_mx = Mathf.Clamp(_my, -270f, 270f);
 
         transform.eulerAngles = new Vector3(0f, _mx, 0f);
+
+        if (!CameraManager.Focus)
+        {
+            return;
+        }
+    }
+    public void ResetX()
+    {
+        _mx = 0;
     }
 }

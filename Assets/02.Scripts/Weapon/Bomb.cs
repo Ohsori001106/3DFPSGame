@@ -5,6 +5,8 @@ using UnityEngine;
 public class Bomb : MonoBehaviour
 {
     public GameObject BoomPrefab;
+
+    
     private void OnCollisionEnter(Collision collision)
     {
       
@@ -12,10 +14,10 @@ public class Bomb : MonoBehaviour
         {
             Instantiate(BoomPrefab, transform.position, transform.rotation);
 
-           /* GameObject effect = Instantiate(BoomPrefab);
-            effect.transform.position = this.gameObject.transform.position;*/
+            /* GameObject effect = Instantiate(BoomPrefab);
+             effect.transform.position = this.gameObject.transform.position;*/
 
-            Destroy(this.gameObject);
+            gameObject.SetActive(false);
         }
     }
 
