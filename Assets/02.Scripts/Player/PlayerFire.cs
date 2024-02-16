@@ -18,7 +18,21 @@ public class PlayerFire : MonoBehaviour
     public int bombCount;
     public int bombCountMax = 3;
 
+    public Text BulletTextUI;
     
+    // 피격 이펙트 오브젝트
+    public GameObject bulletEffect;
+
+    // 피격 이펙트 파티클 시스템
+    ParticleSystem ps;
+
+    public float Firetime;
+    public float FireCooltime = 0.2f;
+
+
+    public int BulletRemainCount;
+    public int BulletMaxCount = 30;
+
 
     public int PoolSize = 3;
     public List<Bomb> _BombPool;
@@ -34,11 +48,23 @@ public class PlayerFire : MonoBehaviour
     }
     public void Start()
     {
+        BulletRemainCount = BulletMaxCount;
         bombCount = bombCountMax;
         RefreshUI();
+        RefreshGunUI();
+        Firetime = FireCooltime;
+
+        // 피격 이펙트 오브젝트에서 파티클 시스템 컴포넌트 가져오기
+        ps = bulletEffect.GetComponent<ParticleSystem>();
     }
     private void Update()
     {
+        Firetime += Time.deltaTime;
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            BulletRemainCount = BulletMaxCount;
+            RefreshGunUI();
+        }
         /* 수류탄 투척 */
         // 구현 순서:
         // 1. 마우스 오른쪽 버튼을 감지
@@ -67,13 +93,43 @@ public class PlayerFire : MonoBehaviour
 
             bombCount--;
             RefreshUI();
+
+           
+        }
+        if (Input.GetMouseButton(0)&& BulletRemainCount>0 && Firetime>=FireCooltime)
+        {
+            // 레이를 생성한 후 발사될 위치와 진행 방향을 설정한다.
+            Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward);
+            // 레이가 부딪힌 대상의 정보를 저장할 변수를 생성한다.
+            RaycastHit hitInfo = new RaycastHit();
+            // 레이를 발사한 후 만일 부딪힌 물체가 있으면 피격 이펙트를 표시한다.
+            if (Physics.Raycast(ray, out hitInfo))
+            {
+                // 피격 이펙트의 위치를 레이가 부딪힌 지점으로 이동시킨다.
+                bulletEffect.transform.position = hitInfo.point;
+
+                // 피격 이펙트의 forward 방향을 레이가 부딪힌 지점의 법선 벡터와 일치시킨다.
+                bulletEffect.transform.forward = hitInfo.normal;
+
+                // 피격 이펙트를 플레이한다.
+                ps.Play();
+                Firetime = 0;
+                BulletRemainCount--;
+                RefreshGunUI();
+
+            }
         }
         
-        
+
     }
     
     private void RefreshUI()
     {
         BombScoreTextUI.text = $"{bombCount}/{bombCountMax}";
+    }
+
+    private void RefreshGunUI()
+    {
+        BulletTextUI.text = $"{BulletRemainCount:d2}/{BulletMaxCount}";
     }
 }
